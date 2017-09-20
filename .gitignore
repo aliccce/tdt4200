@@ -1,0 +1,5 @@
+*.o
+*.bmp
+*.zip
+*.slurm
+*idun.hpc.ntnu.no*
