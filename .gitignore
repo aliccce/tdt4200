@@ -3,3 +3,5 @@
 *.zip
 *.slurm
 *idun.hpc.ntnu.no*
+*.docx
+*.pdf
