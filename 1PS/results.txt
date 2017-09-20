@@ -1,0 +1,45 @@
+katt@Katt:/mnt/c/Users/alice/OneDrive/Documents/Datateknologi/Parallelle beregninger/PS1$ mpirun -np 2 -hosts localhost ./julia 0.02 -0.5
+
+Processes:  2   Problem size:  (2560, 2048)     Time used: 1.383085
+
+katt@Katt:/mnt/c/Users/alice/OneDrive/Documents/Datateknologi/Parallelle beregninger/PS1$ mpirun -np 4 -hosts localhost ./julia 0.02 -0.5
+
+Processes:  4   Problem size:  (2560, 2048)     Time used: 1.130491
+
+katt@Katt:/mnt/c/Users/alice/OneDrive/Documents/Datateknologi/Parallelle beregninger/PS1$ mpirun -np 8 -hosts localhost ./julia 0.02 -0.5
+
+Processes:  8   Problem size:  (2560, 2048)     Time used: 1.986320
+
+
+
+
+
+
+katt@Katt:/mnt/c/Users/alice/OneDrive/Documents/Datateknologi/Parallelle beregninger/PS1$ mpirun -np 2 -hosts localhost ./julia 0.02 -0.5
+
+Processes:  2   Problem size:  (5120, 4096)     Time used: 2.472163
+
+katt@Katt:/mnt/c/Users/alice/OneDrive/Documents/Datateknologi/Parallelle beregninger/PS1$ mpirun -np 4 -hosts localhost ./julia 0.02 -0.5
+
+Processes:  4   Problem size:  (5120, 4096)     Time used: 3.019355
+
+katt@Katt:/mnt/c/Users/alice/OneDrive/Documents/Datateknologi/Parallelle beregninger/PS1$ mpirun -np 8 -hosts localhost ./julia 0.02 -0.5
+
+Processes:  8   Problem size:  (5120, 4096)     Time used: 4.675570
+
+
+
+
+
+
+katt@Katt:/mnt/c/Users/alice/OneDrive/Documents/Datateknologi/Parallelle beregninger/PS1$ mpirun -np 2 -hosts localhost ./julia 0.02 -0.5
+
+Processes:  2   Problem size:  (7680, 6144)     Time used: 6.358774
+
+katt@Katt:/mnt/c/Users/alice/OneDrive/Documents/Datateknologi/Parallelle beregninger/PS1$ mpirun -np 4 -hosts localhost ./julia 0.02 -0.5
+
+Processes:  4   Problem size:  (7680, 6144)     Time used: 6.417774
+
+katt@Katt:/mnt/c/Users/alice/OneDrive/Documents/Datateknologi/Parallelle beregninger/PS1$ mpirun -np 8 -hosts localhost ./julia 0.02 -0.5
+
+Processes:  8   Problem size:  (7680, 6144)     Time used: 10.094557
