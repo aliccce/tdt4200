@@ -158,9 +158,12 @@ int main(int argc, char **argv) {
 		}
 
 		/* write image to disk */
+		
 
-		savebmp( "julia.bmp", buffer, XSIZE, YSIZE );
+		
 		float t = MPI_Wtime() - start;
+		savebmp( "julia.bmp", buffer, XSIZE, YSIZE );
+		
 		printf( "\nProcesses:  %d\tProblem size:  (%d, %d)\tTime used: %f\n\n", world_size, XSIZE, YSIZE, t );
 	}
 
