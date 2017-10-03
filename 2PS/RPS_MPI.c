@@ -18,11 +18,6 @@ void gather_petri();
 void create_types();
 void free_stuff();
 
-void get_column( int col, cell* buffer, cell* local_petri );
-void fill_column( int col, cell* source, cell* local_petri );
-void fill_left();
-void fill_right();
-
 cell next_cell(int x, int y, cell* image);
 cell pick_neighbor(int x, int y, cell* image);
 bool beats(cell me, cell other);
@@ -59,11 +54,7 @@ int p_local_petri_size;
 MPI_Comm cart_comm;
 
 // some datatypes, useful for sending data with somewhat less primitive semantics
-MPI_Datatype border_row_t;  // TODO: Implement this
-MPI_Datatype border_col_t;  // TODO: Implement this
-MPI_Datatype local_petri_t; // Already implemented
-MPI_Datatype mpi_cell_t;    // Already implemented
-
+MPI_Datatype mpi_cell_t;
 MPI_Datatype mpi_row_t;
 MPI_Datatype mpi_col_t;
 
@@ -77,13 +68,6 @@ cell* local_petri_B;
 cell* local_petri;
 cell* local_petri_next;
 
-cell* p_send_west;
-cell* p_from_west;
-
-cell* p_send_east;
-cell* p_from_east;
-
-
 int main(int argc, char** argv){
 
 
@@ -93,7 +77,6 @@ int main(int argc, char** argv){
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
   srand( 1234 * rank );
-
 
   ////////////////////////////////
   // Create cartesian communicator
@@ -125,7 +108,6 @@ int main(int argc, char** argv){
 
   initialize();
 
-
   create_types();
 
   for ( int iter = 0; iter < 1000; iter++ ) {
@@ -152,8 +134,6 @@ int main(int argc, char** argv){
 
 void create_types(){
 
-    ////////////////////////////////
-    ////////////////////////////////
     // cell type
     const int    nitems=2;
     int          blocklengths[2] = {1,1};
@@ -165,32 +145,14 @@ void create_types(){
 
     MPI_Type_create_struct(nitems, blocklengths, offsets, types, &mpi_cell_t);
     MPI_Type_commit(&mpi_cell_t);
-    ////////////////////////////////
-    ////////////////////////////////
 
-
-
-    ////////////////////////////////
-    ////////////////////////////////
-    // A message for a local petri-dish
-    MPI_Type_contiguous(p_local_petri_size,
-                      mpi_cell_t,
-                      &local_petri_t);
-    MPI_Type_commit(&local_petri_t);
-    ////////////////////////////////
-    ////////////////////////////////
-
-
-    //TODO: Create MPI types for border exchange
-
+    // Row type
     MPI_Type_vector( p_local_petri_cols, 1, 1, mpi_cell_t, &mpi_row_t );
     MPI_Type_commit( &mpi_row_t);
 
+    // Column type
     MPI_Type_vector( p_local_petri_rows, 1, p_local_petri_rows + 2*BORDER_SIZE, mpi_cell_t, &mpi_col_t );
     MPI_Type_commit( &mpi_col_t);
-
-
-
 
 }
 
@@ -278,13 +240,6 @@ void initialize(){
   p_top = pixel(0, 0);
   p_bottom = pixel(p_local_petri_rows - 1, 0);
 
-  // Allocate sending column buffers. TODO: Remember to free these!!
-  p_send_west = malloc( p_local_petri_rows * sizeof( cell ) );
-  p_from_west = malloc( p_local_petri_rows * sizeof( cell ) );
-
-  p_send_east = malloc( p_local_petri_rows * sizeof( cell ) );
-  p_from_east = malloc( p_local_petri_rows * sizeof( cell ) );
-
 }
 
 
@@ -308,27 +263,21 @@ void exchange_borders(){
     int c_length = 2;
 
     if ( p_west != -1 ) {
-        // printf("Rank %d sends to west.\n", rank);
-        get_column( 0, p_send_west, local_petri );
         MPI_Isend( local_petri + pixel(0, 0), 1, mpi_col_t, p_west, 1, cart_comm, dont_cares + dc_offset++);
         MPI_Irecv( local_petri + pixel(0, -BORDER_SIZE), 1, mpi_col_t, p_west, 1, cart_comm, cares + c_offset++ );
     } else { dc_length--; c_length--; }
 
     if ( p_east != -1 ) {
-        // printf("Rank %d sends to east.\n", rank);
-        get_column( p_local_petri_cols - 1, p_send_east, local_petri );
         MPI_Isend( local_petri + pixel(0, p_local_petri_cols - 1), 1, mpi_col_t, p_east, 1, cart_comm, dont_cares + dc_offset++ );
         MPI_Irecv( local_petri + pixel(0, p_local_petri_cols), 1, mpi_col_t, p_east, 1, cart_comm, cares + c_offset++ );
     } else { dc_length--; c_length--; }
 
     if ( p_north != -1 ) {
-        // printf("Rank %d sends to north.\n", rank);
         MPI_Isend( local_petri + pixel( 0, 0 ), 1, mpi_row_t, p_north, 1, cart_comm, dont_cares + dc_offset++ );
         MPI_Irecv( local_petri + pixel( -1, 0 ), 1, mpi_row_t, p_north, 1, cart_comm, dont_cares + dc_offset++ );
     } else { dc_length = dc_length - 2; }
 
     if ( p_south != -1 ) {
-        // printf("Rank %d sends to south.\n", rank);
         MPI_Isend( local_petri + pixel( p_local_petri_rows - 1, 0 ), 1, mpi_row_t, p_south, 1, cart_comm, dont_cares + dc_offset++ );
         MPI_Irecv( local_petri + pixel( p_local_petri_rows, 0 ), 1, mpi_row_t, p_south, 1, cart_comm, dont_cares + dc_offset++ );
     } else { dc_length = dc_length - 2; }
@@ -339,42 +288,17 @@ void exchange_borders(){
         int length = c_length;
         MPI_Waitany( length, cares, &index, &stat );
 
-        if ( stat.MPI_SOURCE == p_west ) { /*fill_left(); /*printf("Rank %d received from left.\n", rank); */}
-        else if ( stat.MPI_SOURCE == p_east ) { /*fill_right(); /*printf("Rank %d received from right.\n", rank);*/ }
+        if ( stat.MPI_SOURCE == p_west ) {  /*printf("Rank %d received from left.\n", rank); */}
+        else if ( stat.MPI_SOURCE == p_east ) {  /*printf("Rank %d received from right.\n", rank);*/ }
         c_length --;
     }
 
     MPI_Status stats[dc_length];
     MPI_Waitall( dc_length, dont_cares, stats );
 
-    for (int i = 0; i < dc_length; i++ ){
-        // printf("Rank %d has sent/received from %d. Error code: %d\n", rank, stats[i].MPI_SOURCE, stats[i].MPI_ERROR);
-    }
-
 }
 
-void get_column( int col, cell* buffer, cell* local_petri ) {
-    // Copies a column from local_petri into the buffer. It is expected that
-    // the size of the buffer is equal to the size of a column in local_petri.
-    for( int i = 0; i < p_local_petri_rows; i++ ) {
-        buffer[i] = local_petri[ pixel(i, col) ];
-    }
-}
 
-void fill_column( int col, cell* source, cell* local_petri ) {
-    // Copies the contents of source into local_petri.
-    for( int i = 0; i < p_local_petri_rows; i++ ) {
-        local_petri[ pixel(i, col) ] = source[i];
-    }
-}
-
-void fill_left() {
-    fill_column( -1, p_from_west, local_petri );
-}
-
-void fill_right() {
-    fill_column( p_local_petri_rows, p_from_east, local_petri );
-}
 
 void iterate_CA(){
   //TODO: Iterate the cellular automata one step
@@ -444,12 +368,6 @@ void gather_petri(){
 void free_stuff() {
     free(local_petri_A);
     free(local_petri_B);
-
-    free(p_send_west);
-    free(p_from_west);
-
-    free(p_send_east);
-    free(p_from_east);
 
     free_img();
 }
