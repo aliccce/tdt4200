@@ -9,7 +9,6 @@
 
 #define pixel(i, j) ((i + BORDER_SIZE) * (p_local_petri_cols + 2*BORDER_SIZE) + j + BORDER_SIZE)
 
-
 void initialize();
 void initialize_petri();
 void exchange_borders();
@@ -23,9 +22,6 @@ cell pick_neighbor(int x, int y, cell* image);
 bool beats(cell me, cell other);
 void alloc_img();
 void free_img();
-
-
-
 
 int rank;
 int size;
@@ -97,12 +93,6 @@ int main(int argc, char** argv){
   p_i_dims = dims[0];
   p_j_dims = dims[1];
 
-  /*
-  printf("Process: %d, dims (i, j) = (%d, %d),    %d    %d \n", rank, p_my_i_dim, p_my_j_dim, IMG_X % p_j_dims, IMG_Y % p_i_dims);
-  printf("\t%d\n", p_north);
-  printf("%d\t%d\t%d\n", p_west, rank, p_east);
-  printf("\t%d\n\n", p_south);*/
-
   ////////////////////////////////
   ////////////////////////////////
 
@@ -110,13 +100,12 @@ int main(int argc, char** argv){
 
   create_types();
 
-  for ( int iter = 0; iter < 1000; iter++ ) {
+  for ( int iter = 0; iter < ITERATIONS; iter++ ) {
       local_petri = iter % 2 == 0 ? local_petri_A : local_petri_B;
       local_petri_next = iter % 2 == 0 ? local_petri_B : local_petri_A;
 
       iterate_CA();
       exchange_borders();
-
   }
 
   gather_petri();
@@ -125,12 +114,10 @@ int main(int argc, char** argv){
 
   if(rank==0){
       make_bmp(image, 0);
+      free_img();
   }
 
-  // You should probably make sure to free your memory here
-  // We will dock points for memory leaks, don't let your hard work go to waste!
-  //free_stuff();
-
+  free_stuff();
   exit(0);
 }
 
@@ -244,7 +231,6 @@ void exchange_borders(){
 }
 
 
-
 void iterate_CA(){
   // Iterate the cellular automata one step
   for( int i = 0; i < p_local_petri_rows; i++ ) {
@@ -305,11 +291,7 @@ void gather_petri(){
 void free_stuff() {
     free(local_petri_A);
     free(local_petri_B);
-    free_img();
 }
-
-
-
 
 
 /////////////////////////////////////////////////
