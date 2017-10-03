@@ -48,7 +48,7 @@ void make_bmp(cell** image, int index){
 
   // used to be calloc with 1 as arg 2, thus no sizeof(??)
   unsigned char* buffer = malloc(IMG_X*IMG_Y*3);
-  for(int i=0;i<IMG_X;i++) {
+  for(int i=0; i < IMG_X;i++) {
     for(int j=0;j<IMG_Y;j++) {
       int p=((IMG_Y-j-1)*IMG_X+i)*3;
       colorize(buffer+p, image[i][j]);
@@ -56,7 +56,7 @@ void make_bmp(cell** image, int index){
   }
 
   char filename [50];
-  sprintf(filename, "data/CA-%d.bmp", index);
+  sprintf(filename, "MPI_petri.bmp", index);
   /* write image to disk */
   savebmp(filename,buffer,IMG_X,IMG_Y);
 }
