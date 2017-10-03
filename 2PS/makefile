@@ -14,7 +14,7 @@ SHELL := /bin/bash
 
 # In this case the dependencies are easy to figure out, so I will not elaborate further
 parallel: $(util_objects) $(parallel_objects)
-	mpicc $(util_objects) $(parallel_objects) -o parallelRPS
+	mpicc $(util_objects) $(parallel_objects) -o RPSparallel
 
 RPS_MPI.o: RPS_MPI.c RPS_MPI.h
 	mpicc -c RPS_MPI.c RPS_MPI.h $(CFLAGS)

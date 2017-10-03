@@ -25,19 +25,19 @@ void colorize(uchar* p, cell my_cell) {
     p[2] = 255;
   }
 	else if(my_cell.color == ROCK) {
-    p[0] = 0;
-    p[1] = 0;
-    p[2] = 255;
+    p[0] = 0x4e;
+    p[1] = 0xc1;
+    p[2] = 0xF2;
   }
 	else if(my_cell.color == SCISSOR) {
-    p[0] = 0;
-    p[1] = 255;
-    p[2] = 0;
+    p[0] = 0x56;
+    p[1] = 0xad;
+    p[2] = 0x5f;
   }
 	else if(my_cell.color == PAPER) {
-    p[0] = 255;
-    p[1] = 0;
-    p[2] = 0;
+    p[0] = 0x5f;
+    p[1] = 0x4b;
+    p[2] = 0x11;
   }
 }
 
