@@ -305,7 +305,6 @@ void gather_petri(){
 void free_stuff() {
     free(local_petri_A);
     free(local_petri_B);
-
     free_img();
 }
 
@@ -313,7 +312,9 @@ void free_stuff() {
 
 
 
-// BAD GIRL BAD GIRL
+/////////////////////////////////////////////////
+/////////////////////////////////////////////////
+//  Image allocation
 
 void alloc_img(){
     image = malloc( IMG_Y * sizeof(cell*) );
@@ -329,6 +330,11 @@ void free_img(){
     free(image);
 }
 
+/////////////////////////////////////////////////
+/////////////////////////////////////////////////
+//  Rock-paper-scizzor logic
+
+
 bool beats(cell me, cell other){
   return
     (((me.color == SCISSOR) && (other.color == PAPER)) ||
@@ -336,6 +342,7 @@ bool beats(cell me, cell other){
      ((me.color == ROCK) && (other.color == SCISSOR))  ||
      (me.color == other.color));
 }
+
 
 cell next_cell(int i, int j, cell* petri_dish){
 
@@ -374,8 +381,8 @@ cell next_cell(int i, int j, cell* petri_dish){
 
 
 cell pick_neighbor(int i, int j, cell* image){
-  int chosen = 2 * (rand() % 4) + 1;  // Will choose 1, 3, 5 or 7
-
+  int chosen = rand() % 9;
+  chosen = chosen == 4? 5 : chosen;
   int c_i = chosen / 3;
   int c_j = chosen % 3;
 

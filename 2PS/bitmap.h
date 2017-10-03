@@ -1,7 +1,6 @@
 #ifndef BITMAP_H
 #define BITMAP_H
 
-#include "CA.h"
 #include "RPS.h"
 
 // note that we are extra careful with preprocessor macros. Adding parenthesises is never the

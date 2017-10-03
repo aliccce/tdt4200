@@ -6,9 +6,7 @@
 #include <stdbool.h>
 #include <math.h>
 
-#include "CA.h"
 #include "bitmap.h"
-#include "RPS.h"
 
 #define WHITE   0
 #define ROCK    1

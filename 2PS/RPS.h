@@ -11,7 +11,6 @@ typedef struct {
   int strength;
 } cell;
 
-#include "CA.h"
 #include "bitmap.h"
 
 #define WHITE   0
