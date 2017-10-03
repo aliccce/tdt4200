@@ -1,8 +1,8 @@
-# CFLAGS+= -std=c99 -g -O3
+CFLAGS+= -std=c99 -g -O3 -I.
 
 # by uncommenting this line the preprocessor will see #ifdef DEBUG as true
 # CFLAGS+= -DDEBUG
-util_objects = CA.o bitmap.o
+util_objects = bitmap.o
 serial_objects = RPS.o
 parallel_objects = RPS_MPI.o
 
@@ -16,11 +16,8 @@ SHELL := /bin/bash
 parallel: $(util_objects) $(parallel_objects)
 	mpicc $(util_objects) $(parallel_objects) -o parallelRPS
 
-serial : $(util_objects) $(serial_objects)
-	gcc $(util_objects) $(serial_objects) -o serialRPS
-
 RPS_MPI.o: RPS_MPI.c RPS_MPI.h
-	mpicc -c RPS_MPI.c RPS_MPI.h
+	mpicc -c RPS_MPI.c RPS_MPI.h $(CFLAGS)
 
 # In this target [stuff I need to make this target] is two other targets, namely clean and all
 # This command simply runs the clean target, then the all target, thus recompiling everything.
