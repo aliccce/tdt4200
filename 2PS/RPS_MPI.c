@@ -105,13 +105,8 @@ int main(int argc, char** argv){
   periods[0] = 0;
   periods[1] = 0;
 
-  int coords[2];
-  coords[0] = p_my_j_dim;
-  coords[1] = p_my_i_dim;
-
   MPI_Dims_create(size, 2, dims);
   MPI_Cart_create(MPI_COMM_WORLD, 2, dims, periods, 0, &cart_comm);
-  MPI_Cart_coords(cart_comm, rank, 2, coords);
 
   MPI_Cart_shift(cart_comm, 0, 1, &p_north, &p_south);
   MPI_Cart_shift(cart_comm, 1, 1, &p_west, &p_east);
@@ -119,13 +114,11 @@ int main(int argc, char** argv){
   p_i_dims = dims[0];
   p_j_dims = dims[1];
 
-  p_my_i_dim = coords[0];
-  p_my_j_dim = coords[1];
-
+  /*
   printf("Process: %d, dims (i, j) = (%d, %d),    %d    %d \n", rank, p_my_i_dim, p_my_j_dim, IMG_X % p_j_dims, IMG_Y % p_i_dims);
   printf("\t%d\n", p_north);
   printf("%d\t%d\t%d\n", p_west, rank, p_east);
-  printf("\t%d\n\n", p_south);
+  printf("\t%d\n\n", p_south);*/
 
   ////////////////////////////////
   ////////////////////////////////
