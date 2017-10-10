@@ -160,8 +160,8 @@ void initialize(){
   // Make the petri_dish aaaall white
     if (rank == 0) {
 
-      for( int i = -BORDER_SIZE; i < p_local_petri_rows + 2*BORDER_SIZE; i++ ) {
-          for( int j = -BORDER_SIZE; j < p_local_petri_cols + 2*BORDER_SIZE; j++ ) {
+      for( int i = -BORDER_SIZE; i < p_local_petri_rows + BORDER_SIZE; i++ ) {
+          for( int j = -BORDER_SIZE; j < p_local_petri_cols + BORDER_SIZE; j++ ) {
               local_petri_A[ pixel(i, j) ].color = 0;
               local_petri_A[ pixel(i, j) ].strength = 1;
           }
