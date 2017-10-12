@@ -9,7 +9,7 @@
 #define PIXEL(i,j) ((i)+(j)*IMG_X)
 
 typedef unsigned char uchar;
-void make_bmp(cell* image, int index);
+void make_bmp(cell* image, int index, char* filename);
 void make_bmp_sized(cell* image, int index, int x, int y);
 
 #endif

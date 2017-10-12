@@ -13,7 +13,7 @@ omp :
 	gcc -std=c99 -g -O3 -fopenmp CA.h CA.c utils.h utils.c bitmap.h bitmap.c RPS.c RPS.h -o ompRPS.out
 
 pth :
-	gcc -std=c99 -g -O3 -pthread CA.h CA.c utils.h utils.c bitmap.h bitmap.c p_RPS.c RPS.h -o pthreadRPS.out
+	gcc -std=c99 -D_GNU_SOURCE -g -O3 -pthread CA.h CA.c utils.h utils.c bitmap.h bitmap.c p_RPS.c RPS.h -o pthreadRPS.out
 
 remake : clean all
 

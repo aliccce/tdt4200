@@ -1,14 +1,27 @@
 #include "RPS.h"
 #include <time.h>
+#include <omp.h>
+#include <stdlib.h>
 
 void swap_petris();
 
 cell* petri_A;
 cell* petri_B;
 
+#define ARGUMENTS(x) (x > -1)
+
 int main(int argc, char** argv){
 
-  printf("running %d iterations\n",ITERATIONS);
+  NUM_OF_THREADS = -1;
+  if (argc > 1) {
+      NUM_OF_THREADS = strtol( argv[1], NULL, 10 );
+  }
+  else {
+      printf("Argument missing: This program takes one argument. Please specify a number of threads.\n");
+      exit(0);
+  }
+  printf("running %d iterations with %d threads. \n",ITERATIONS, NUM_OF_THREADS);
+
 
   srand(time(NULL));
   petri_A = calloc(IMG_X*IMG_Y, sizeof(cell));
@@ -31,17 +44,16 @@ int main(int argc, char** argv){
   time(&a);
 
   for(int ii = 0; ii < ITERATIONS; ii++){
-
-    // This should be parallelized somehow
     iterate_image(petri_A, petri_B);
     swap_petris();
-    
   }
 
   time(&b);
+
   printf("This took %d seconds..\n", (int)(b - a));
 
-  make_bmp(petri_A, 0);
+  char* filename = "RPS_omp.bmp";
+  make_bmp(petri_A, 0, filename);
 
 }
 
@@ -50,4 +62,9 @@ void swap_petris(){
   cell* tmp1 = petri_A;
   petri_A = petri_B;
   petri_B = tmp1;
+}
+
+void free_stuff() {
+    free(petri_B);
+    free(petri_A);
 }

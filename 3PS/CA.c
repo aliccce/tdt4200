@@ -1,4 +1,6 @@
 #include "CA.h"
+#include <omp.h>
+
 
 #define TRANS(x, y) ((x)+(y)*IMG_X)
 
@@ -79,10 +81,33 @@ void iterate_image(cell* old_image, cell* next_image){
 
   int seed = rand();
   seed = (seed * 0x5DEECE66DL + 0xBL) & 0xFFFFFFFFFFFFL;
+  int xx;
+  int yy;
 
-  for(int xx = 1; xx < IMG_X - 2; xx++){
-    for(int yy = 1; yy < IMG_Y - 2; yy++){
+
+
+  #pragma omp parallel for private(xx, yy) num_threads(NUM_OF_THREADS)
+  for(yy = 1; yy < IMG_Y - 2; yy++){
+    for(xx = 1; xx < IMG_X - 2; xx++){
       next_image[TRANS(xx,yy)] = next_cell(xx, yy, old_image, (seed % 8) + 8*(seed < 8));
     }
   }
+
+
+}
+
+
+void iterate_image_pth(cell* old_image, cell* next_image, int y_start, int y_end ){
+
+  int seed = rand();
+  seed = (seed * 0x5DEECE66DL + 0xBL) & 0xFFFFFFFFFFFFL;
+  int xx;
+  int yy;
+
+  for(yy = y_start; yy < y_end; yy++){
+    for(xx = 1; xx < IMG_X - 2; xx++){
+      next_image[TRANS(xx,yy)] = next_cell(xx, yy, old_image, (seed % 8) + 8*(seed < 8));
+    }
+  }
+
 }

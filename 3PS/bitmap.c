@@ -27,23 +27,23 @@ void colorize(uchar* p, cell my_cell) {
     p[2] = 255;
   }
 	else if(my_cell.color == ROCK) {
-    p[0] = 0;
-    p[1] = 0;
-    p[2] = 255;
+    p[0] = 0x3a;
+    p[1] = 0x39;
+    p[2] = 0x39;
   }
 	else if(my_cell.color == SCISSOR) {
-    p[0] = 0;
-    p[1] = 255;
-    p[2] = 0;
+    p[0] = 0xc7;
+    p[1] = 0xf6;
+    p[2] = 0xaf;
   }
 	else if(my_cell.color == PAPER) {
-    p[0] = 255;
-    p[1] = 0;
-    p[2] = 0;
+    p[0] = 0xcd;
+    p[1] = 0xb0;
+    p[2] = 0x63;
   }
 }
 
-void make_bmp(cell* image, int index){
+void make_bmp(cell* image, int index, char* filename){
 
   // create nice image from iteration counts. take care to create it upside
   // down (bmp format)
@@ -57,10 +57,9 @@ void make_bmp(cell* image, int index){
     }
   }
 
-  char filename [50];
-  sprintf(filename, "data/CA-%d.bmp", index);
   /* write image to disk */
   savebmp(filename,buffer,IMG_X,IMG_Y);
+  free(buffer);
 }
 
 void make_bmp_sized(cell* image, int index, int x, int y){
@@ -81,4 +80,5 @@ void make_bmp_sized(cell* image, int index, int x, int y){
   sprintf(filename, "data/CA-%d.bmp", index);
   /* write image to disk */
   savebmp(filename,buffer,x,y);
+  free(buffer);
 }

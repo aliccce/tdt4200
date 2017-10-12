@@ -27,4 +27,6 @@ typedef struct {
 #define IMG_X 1024
 #define IMG_Y 1024
 
+int NUM_OF_THREADS;
+
 #endif
