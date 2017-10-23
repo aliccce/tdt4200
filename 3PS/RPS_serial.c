@@ -35,13 +35,14 @@ int main(int argc, char** argv){
     // This should be parallelized somehow
     iterate_image(petri_A, petri_B);
     swap_petris();
-    
+
   }
 
   time(&b);
   printf("This took %d seconds..\n", (int)(b - a));
 
-  make_bmp(petri_A, 0);
+  char* filename = "RPS_serial.bmp";
+  make_bmp(petri_A, 0, filename);
 
 }
 

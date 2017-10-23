@@ -6,3 +6,6 @@
 *.docx
 *.pdf
 *.tar.gz
+*.gch
+*.out
+*training.hpc.ntnu.no*
