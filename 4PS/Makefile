@@ -1,5 +1,5 @@
 CCFLAGS = -Wall -Wshadow -O2 -g
-LFLAGS = -lm
+LFLAGS = -lm -lopenblas
 
 
 all: test example1 example4
