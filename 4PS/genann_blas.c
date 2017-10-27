@@ -31,6 +31,7 @@
 #include <assert.h>
 #include <stdio.h>
 #include <sys/time.h>
+#include <cblas.h>
 
 #define LOOKUP_SIZE 4096
 
@@ -198,17 +199,47 @@ double const *genann_run(genann const *ann, double const *inputs) {
     //##########################################################################
     //##########################################################################
 
-    /* Figure hidden layers, if any. */
+    /* Figure hidden layers, if any.*/
+
     for (h = 0; h < ann->hidden_layers; ++h) {
-        for (j = 0; j < ann->hidden; ++j) {
-            double sum = *w++ * -1.0;
-            for (k = 0; k < (h == 0 ? ann->inputs : ann->hidden); ++k) {
-                sum += *w++ * i[k];
-            }
-            *o++ = act(sum);
+        int m = ann->hidden;
+        int n =  h == 0 ?  ann->inputs  :  ann->hidden;
+
+        double* temp_i = malloc( (n + 1) * sizeof(double) );
+        temp_i[0] = -1.0;
+        memcpy( temp_i + 1, i, n * sizeof(double) );
+
+        cblas_dgemv(
+            CblasRowMajor, CblasNoTrans,
+            m, n + 1, 1.0,
+            w, n + 1,
+            temp_i, 1,
+            0, o, 1
+        );
+
+        for (j = 0; j < ann->hidden; ++j){
+            *o = act( *o );
+            o++;
         }
-        i += (h == 0 ? ann->inputs : ann->hidden);
+
+        w += n * m + m;
+        i += n;
+        free(temp_i);
     }
+
+    /////////// OLD CODE
+    // for (h = 0; h < ann->hidden_layers; ++h) {
+    //     for (j = 0; j < ann->hidden; ++j) {
+    //         double sum = *w++ * -1.0;
+    //
+    //         for (k = 0; k < (h == 0 ? ann->inputs : ann->hidden); ++k) {
+    //             sum += *w++ * i[k];
+    //         }
+    //         *o++ = act(sum);
+    //     }
+    //     i += (h == 0 ? ann->inputs : ann->hidden);
+    //
+    // }
 
     double const *ret = o;
 
@@ -240,7 +271,7 @@ void genann_train(genann const *ann, double const *inputs, double const *desired
     /* To begin with, we must run the network forward. */
     genann_run(ann, inputs);
 
-    int h, j, k;
+    int h, j, k, m, n;
 
     /* First set the output layer deltas. */
     {
@@ -261,7 +292,6 @@ void genann_train(genann const *ann, double const *inputs, double const *desired
             }
         }
     }
-
 
     /* Set hidden layer deltas, start on last layer and work backwards. */
     /* Note that loop is skipped in the case of hidden_layers == 0. */
@@ -287,20 +317,41 @@ void genann_train(genann const *ann, double const *inputs, double const *desired
     //##########################################################################
     //##########################################################################
 
-        for (j = 0; j < ann->hidden; ++j) {
 
-            double delta = 0;
+        m = ann->hidden;
+        n =  h == ann->hidden_layers - 1  ?  ann->outputs  :  ann->hidden;
+        double* delta = malloc( m * sizeof(double) );
 
-            for (k = 0; k < (h == ann->hidden_layers-1 ? ann->outputs : ann->hidden); ++k) {
-                const double forward_delta = dd[k];
-                const int windex = k * (ann->hidden + 1) + (j + 1);
-                const double forward_weight = ww[windex];
-                delta += forward_delta * forward_weight;
-            }
+        cblas_dgemv(
+                CblasRowMajor, CblasTrans,
+                n, m, 1.0,
+                ww + 1, ann->hidden + 1,    // A; strides between rows;
+                dd, 1,
+                0, delta, 1
+            );
 
-            *d = *o * (1.0-*o) * delta;
-            ++d; ++o;
+        for (j = 0; j < ann->hidden; j++ ){
+            *d = *o * (1.0-*o) * (*delta);
+            ++d; ++o; ++delta;
         }
+
+        free(delta - ann->hidden);
+
+        /////////// OLD CODE
+        // for (j = 0; j < ann->hidden; ++j) {
+        //
+        //     double delta = 0;
+        //
+        //     for (k = 0; k < (h == ann->hidden_layers-1 ? ann->outputs : ann->hidden); ++k) {
+        //         const double forward_delta = dd[k];
+        //         const int windex = k * (ann->hidden + 1) + (j + 1);
+        //         const double forward_weight = ww[windex];
+        //         delta += forward_delta * forward_weight;
+        //     }
+        //
+        //     *d = *o * (1.0-*o) * delta;
+        //     ++d; ++o;
+        // }
     }
 
 
@@ -370,15 +421,30 @@ void genann_train(genann const *ann, double const *inputs, double const *desired
         //##########################################################################
 
         for (j = 0; j < ann->hidden; ++j) {
-            for (k = 0; k < (h == 0 ? ann->inputs : ann->hidden) + 1; ++k) {
-                if (k == 0) {
-                    *w++ += *d * learning_rate * -1.0;
-                } else {
-                    *w++ += *d * learning_rate * i[k-1];
-                }
-            }
-            ++d;
+            int vector_size = (h == 0 ? ann->inputs : ann->hidden) + 1;
+            double* temp_i = malloc( vector_size * sizeof(double) );
+            temp_i[0] = -1.0;
+            memcpy( temp_i + 1, i, (vector_size - 1) * sizeof(double) );
+
+            cblas_daxpy( vector_size, *d * learning_rate, temp_i, 1, w, 1 );
+
+            free(temp_i);
+            w += vector_size;
+            d++;
         }
+
+        /////////// OLD CODE
+        //
+        // for (j = 0; j < ann->hidden; ++j) {
+        //     for (k = 0; k < (h == 0 ? ann->inputs : ann->hidden) + 1; ++k) {
+        //         if (k == 0) {
+        //             *w++ += *d * learning_rate * -1.0;
+        //         } else {
+        //             *w++ += *d * learning_rate * i[k-1];
+        //         }
+        //     }
+        //     ++d;
+        // }
 
     }
 
